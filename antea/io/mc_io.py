@@ -10,18 +10,20 @@ from invisible_cities.evm.event_model import Waveform
 from invisible_cities.evm.nh5         import MCHitInfo
 from invisible_cities.evm.nh5         import MCParticleInfo
 
-from . nh5 import MCExtentInfo, MCWaveformInfo
+from . nh5 import MCExtentInfo, MCWaveformInfo, ConfigurationInfo
 
 from typing import Mapping
 
 
 class mc_sns_response_writer:
     """Add MC sensor response info to file."""
-    def __init__(self, h5file, compression = 'ZLIB4'):
+    def __init__(self, h5file, h5filein, compression = 'ZLIB4'):
 
         self.h5file      = h5file
+        self.h5filein    = h5filein
         self.compression = compression
         self._create_tables()
+        self._create_conf_table()
         self.reset()
         self.current_tables = None
         self.bin_width = 1.*units.millisecond
@@ -65,6 +67,25 @@ class mc_sns_response_writer:
                                                   description = MCWaveformInfo,
                                                   title       = "waveforms",
                                                   filters     = tbl.filters(self.compression))
+
+    def _create_conf_table(self):
+
+        MC = self.h5file.root.MC
+        self.configuration_table = self.h5file.create_table(MC, "configuration",
+                                                            description = ConfigurationInfo,
+                                                            title       = "configuration",
+                                                            filters     = tbl.filters(self.compression))
+
+        h5config = self.h5filein.root.MC.configuration
+        for row in h5config:
+            param_key = row['param_key'].decode('utf-8','ignore')
+            param_value = row['param_value'].decode('utf-8','ignore')
+
+            new_row = self.configuration_table.row
+            new_row['param_key']  = param_key
+            new_row['param_value'] = param_value
+            new_row.append()
+        self.wvf_table.flush()
 
 
     def __call__(self, mctables: (tb.Table, tb.Table, tb.Table, tb.Table),
@@ -158,6 +179,7 @@ class mc_sns_response_writer:
         self.wvf_table.flush()
 
 
+
 def read_SiPM_bin_width_from_conf(h5f):
 
     h5config = h5f.root.MC.configuration
@@ -174,7 +196,7 @@ def read_SiPM_bin_width_from_conf(h5f):
         bin_width = 1 * units.microsecond
 
     return bin_width
-    
+
 
 def read_mcsns_response_evt (mctables: (tb.Table, tb.Table),
                              event_number: int, last_line_of_event,
@@ -231,9 +253,9 @@ def go_through_file(h5f, h5waveforms, event_range=(0, int(1e9)), bin_width=1.*un
     h5extents   = h5f.root.MC.extents
     sns_info    = (h5extents, h5waveforms)
 
-    last_line_name = 'last_sns_' + kind_of_waveform     
+    last_line_name = 'last_sns_' + kind_of_waveform
     events_in_file = len(h5extents)
-    
+
     all_events     = {}
     for iext in range(*event_range):
         if iext >= events_in_file:
@@ -266,4 +288,3 @@ def read_mcTOFsns_response(file_name, event_range=(0, int(1e9))) ->Mapping[int, 
         all_events = go_through_file(h5f, h5waveforms, event_range, bin_width, kind_of_waveform)
 
         return all_events
-

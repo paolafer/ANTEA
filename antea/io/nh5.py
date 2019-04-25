@@ -1,5 +1,10 @@
 import tables as tb
 
+class ConfigurationInfo(tb.IsDescription):
+    """ Store the configuration parameters used in nexus. """
+    param_key   = tb.StringCol(300, pos=0)
+    param_value = tb.StringCol(300, pos=1)
+
 class MCExtentInfo(tb.IsDescription):
     """Store the last row of each table as metadata using
     Pytables.
