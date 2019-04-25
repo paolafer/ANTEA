@@ -11,6 +11,7 @@ class MCExtentInfo(tb.IsDescription):
 
 
 class MCWaveformInfo(tb.IsDescription):
-    """Describe a true waveform."""
-    time_mus = tb.Float32Col(pos=0)
-    ene_pes  = tb.Float32Col(pos=1)
+    """Describe a waveform."""
+    sensor_id = tb.Int32Col(pos=0)
+    time_bin  = tb.Float32Col(pos=1)
+    charge    = tb.Float32Col(pos=2)

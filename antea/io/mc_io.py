@@ -3,6 +3,8 @@ import numpy  as np
 
 from invisible_cities.core            import system_of_units as units
 from invisible_cities.io.mcinfo_io    import units_dict
+from invisible_cities.io.mcinfo_io    import read_mcinfo_evt
+from invisible_cities.reco            import tbl_functions as tbl
 
 from invisible_cities.evm.event_model import Waveform
 from invisible_cities.evm.nh5         import MCHitInfo
@@ -13,8 +15,8 @@ from . nh5 import MCExtentInfo, MCWaveformInfo
 from typing import Mapping
 
 
-class mc_writer:
-    """Write MC info to file."""
+class mc_sns_response_writer:
+    """Add MC sensor response info to file."""
     def __init__(self, h5file, compression = 'ZLIB4'):
 
         self.h5file      = h5file
@@ -117,7 +119,7 @@ class mc_writer:
         self.extent_table.flush()
 
         hits, particles, _ = read_mcinfo_evt(mctables, evt_number, self.last_row)
-        waveforms          = read_mcsns_response_evt(mctables_wvf, evt_number, 'last_sns_data', bin_width, self.last_row)
+        waveforms          = sns_response[evt_number]
         self.last_row = iext + 1
 
         for h in hits:
@@ -147,14 +149,13 @@ class mc_writer:
             new_row.append()
         self.particle_table.flush()
 
-        for g in generators:
-            new_row = self.generator_table.row
-            new_row['evt_number']    = g[0]
-            new_row['atomic_number'] = g[1]
-            new_row['mass_number']   = g[2]
-            new_row['region']        = g[3]
+        for sns, charge in waveforms.items():
+            new_row = self.wvf_table.row
+            new_row['sensor_id'] = sns
+            new_row['time_bin']  = 0
+            new_row['charge']    = charge
             new_row.append()
-        self.generator_table.flush()
+        self.wvf_table.flush()
 
 
 def read_SiPM_bin_width_from_conf(h5f):
