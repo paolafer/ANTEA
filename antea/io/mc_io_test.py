@@ -17,7 +17,7 @@ def test_mc_sns_response_writer_reset(output_tmpdir):
     with tb.open_file(filein) as h5in:
         with tb.open_file(fileout, 'w') as h5out:
 
-            mc_writer  = mc_sns_response_writer(h5out)
+            mc_writer  = mc_sns_response_writer(h5out, h5in)
             events_in  = np.unique(h5in.root.MC.extents[:]['evt_number'])
 
             sns_dict = {1000: 1, 1001: 2, 1002: 3}
