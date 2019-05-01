@@ -21,3 +21,8 @@ def test_sipm_pd(db):
 
 def test_mc_runs_equal_data_runs(db):
     assert (DB.DataSiPM(db.detector, -3550).values == DB.DataSiPM(db.detector, 3550).values).all()
+
+
+def test_prob_list(db):
+    prob_lists = DB.ProbabilityList(db.detector)
+    assert len(prob_lists) == 11700
