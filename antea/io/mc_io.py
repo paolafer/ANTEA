@@ -12,7 +12,7 @@ from invisible_cities.evm.nh5         import MCParticleInfo
 
 from . nh5 import MCExtentInfo, MCWaveformInfo, ConfigurationInfo
 
-from typing import Mapping
+from typing import Mapping, Sequence
 
 
 class mc_sns_response_writer:
@@ -89,7 +89,7 @@ class mc_sns_response_writer:
 
 
     def __call__(self, mctables: (tb.Table, tb.Table, tb.Table, tb.Table),
-                 sns_response: Mapping[int, Mapping[int, Waveform]], evt_number: int):
+                 sns_response: Mapping[int, Sequence], evt_number: int):
         if mctables is not self.current_tables:
             self.current_tables = mctables
             self.reset()
@@ -170,7 +170,7 @@ class mc_sns_response_writer:
             new_row.append()
         self.particle_table.flush()
 
-        for sns, charge in waveforms.items():
+        for sns, charge in enumerate(waveforms, start=1000):
             new_row = self.wvf_table.row
             new_row['sensor_id'] = sns
             new_row['time_bin']  = 0
