@@ -7,7 +7,7 @@ import re
 from os import path
 
 
-tables = ['ChannelPositionP7R195Z140mm', 'ChannelGainP7R195Z140mm', 'ChannelMaskP7R195Z140mm', 'ChannelMappingP7R195Z140mm', 'ChannelMatrixP7R195Z140mm', 'ChannelPositionP7R410Z1950mm', 'ChannelMatrixP7R410Z1950mm']
+tables = ['ChannelPositionP7R195Z140mm', 'ChannelGainP7R195Z140mm', 'ChannelMaskP7R195Z140mm', 'ChannelMappingP7R195Z140mm', 'ChannelMatrixP7R195Z140mm', 'ChannelPositionP7R410Z1950mm', 'ChannelMatrixP7R410Z1950mm', 'ProbListP7R410Z1950mm']
 
 
 def create_table_sqlite(cursorSqlite, cursorMySql, table):
