@@ -29,3 +29,8 @@ def test_sipm_pd_sim_only(db_sim_only):
 
 def test_mc_runs_equal_data_runs(db):
     assert (DB.DataSiPM(db.detector, -3550).values == DB.DataSiPM(db.detector, 3550).values).all()
+
+
+def test_prob_list(db_sim_only):
+    prob_lists = DB.ProbabilityList(db_sim_only.detector, conf_label='P7R410Z1950mm')
+    assert len(prob_lists) == 11700
