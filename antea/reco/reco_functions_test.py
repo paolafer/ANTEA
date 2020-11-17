@@ -267,12 +267,12 @@ def test_find_first_time_of_sensors(ANTEADATADIR):
         tof     = tof_response[tof_response.event_id==evt]
         sns_ids = tof.sensor_id.unique()
         times   = tof.time_bin
-        result  = rf.find_first_time_of_sensors(tof, sns_ids)
-        time_from_id = tof[tof.sensor_id == -result[0]].time_bin.min()
+        ids, time  = rf.find_first_time_of_sensors(tof, sns_ids, n_pe=1)
+        time_from_id = tof[tof.sensor_id == -ids[0]].time_bin.min()
 
-        assert result[0] > 0
+        assert ids[0] > 0
         for t in times:
-            assert rf.lower_or_equal(result[1], t)
+            assert rf.lower_or_equal(time, t)
             assert rf.lower_or_equal(time_from_id, t)
 
 
