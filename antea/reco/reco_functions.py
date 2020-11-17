@@ -180,11 +180,12 @@ def part_first_hit(hits: pd.DataFrame,
 
 
 def find_first_time_of_sensors(tof_response: pd.DataFrame,
-                               sns_ids: Sequence[int])-> Tuple[int, int]:
+                               sns_ids: Sequence[int],
+                               n_pe: int = 1)-> Tuple[Tuple[int], float]:
     """
-    This function looks for the time among all sensors for the first
-    photoelectron detected.
-    In case more than one photoelectron arrives at the same time,
+    Calculates the average of the detection time
+    of the first n_pe photoelectrons.
+    If more than one photoelectron is detected at the same time,
     the sensor with minimum id is chosen.
     The positive value of the id of the sensor and the time of detection
     are returned.
@@ -193,15 +194,11 @@ def find_first_time_of_sensors(tof_response: pd.DataFrame,
     if tof.empty:
         raise WaveformEmptyTable("Tof dataframe is empty")
 
-    min_t  = tof.time_bin.min()
-    min_df = tof[tof.time_bin == min_t]
+    first_times = tof.sort_values(by=['time_bin']).iloc[0:n_pe]
+    min_t       = first_times['time_bin'].mean()
+    min_ids     = first_times.sensor_id.values
 
-    if len(min_df)>1:
-        min_id = min_df[min_df.sensor_id == min_df.sensor_id.min()].sensor_id.values[0]
-    else:
-        min_id = min_df.sensor_id.values[0]
-
-    return np.abs(min_id), min_t
+    return np.abs(min_ids), min_t
 
 
 def find_hit_distances_from_true_pos(hits: pd.DataFrame,
@@ -355,12 +352,13 @@ def reconstruct_coincidences(sns_response: pd.DataFrame,
 
 def find_coincidence_timestamps(tof_response: pd.DataFrame,
                                 sns1: Sequence[int],
-                                sns2: Sequence[int])-> Tuple[int, int, int, int]:
+                                sns2: Sequence[int],
+                                n_pe: int = 1)-> Tuple[Tuple[int], Tuple[int], float, float]:
     """
     Finds the first time and sensor of each one of two sets of sensors,
     given a sensor response dataframe.
     """
-    min1, time1 = find_first_time_of_sensors(tof_response, -sns1)
-    min2, time2 = find_first_time_of_sensors(tof_response, -sns2)
+    min1, time1 = find_first_time_of_sensors(tof_response, -sns1, n_pe)
+    min2, time2 = find_first_time_of_sensors(tof_response, -sns2, n_pe)
 
     return min1, min2, time1, time2
