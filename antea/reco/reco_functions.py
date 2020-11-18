@@ -197,8 +197,9 @@ def find_first_time_of_sensors(tof_response: pd.DataFrame,
     first_times = tof.sort_values(by=['time_bin']).iloc[0:n_pe]
     min_t       = first_times['time_bin'].mean()
     min_ids     = first_times.sensor_id.values
+    min_charges = first_times.charge.values
 
-    return np.abs(min_ids), min_t
+    return np.abs(min_ids), min_charges, min_t
 
 
 def find_hit_distances_from_true_pos(hits: pd.DataFrame,
@@ -353,12 +354,13 @@ def reconstruct_coincidences(sns_response: pd.DataFrame,
 def find_coincidence_timestamps(tof_response: pd.DataFrame,
                                 sns1: Sequence[int],
                                 sns2: Sequence[int],
-                                n_pe: int = 1)-> Tuple[Tuple[int], Tuple[int], float, float]:
+                                n_pe: int = 1)-> Tuple[Tuple[int], Tuple[int], Tuple[float], Tuple[float],
+                                                       float, float]:
     """
     Finds the first time and sensor of each one of two sets of sensors,
     given a sensor response dataframe.
     """
-    min1, time1 = find_first_time_of_sensors(tof_response, -sns1, n_pe)
-    min2, time2 = find_first_time_of_sensors(tof_response, -sns2, n_pe)
+    min1, q1, time1 = find_first_time_of_sensors(tof_response, -sns1, n_pe)
+    min2, q2, time2 = find_first_time_of_sensors(tof_response, -sns2, n_pe)
 
-    return min1, min2, time1, time2
+    return min1, min2, q1, q2, time1, time2
